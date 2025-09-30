@@ -1,4 +1,3 @@
-
 using citas.Data;
 using citas.Services;
 using Microsoft.EntityFrameworkCore;
@@ -8,10 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Configurar variables de entorno en producción
 if (builder.Environment.IsProduction())
 {
-    // Reemplazar placeholders con variables de entorno
-    var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") ?? 
-                          builder.Configuration.GetConnectionString("DefaultConnection");
-    
+    var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") ?? "Data Source=app.db";
     builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
     builder.Configuration["WhatsApp:ApiUrl"] = Environment.GetEnvironmentVariable("WHATSAPP_API_URL") ?? 
                                                builder.Configuration["WhatsApp:ApiUrl"];
@@ -19,45 +15,36 @@ if (builder.Environment.IsProduction())
                                               builder.Configuration["WhatsApp:Token"];
 }
 
-// Configuración de DbContext
-if (builder.Environment.IsProduction())
+// Configuración de DbContext - SQLite para simplicidad en producción
+builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    // PostgreSQL para producción (Render.com)
-    builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-}
-else
-{
-    // SQL Server para desarrollo
-    builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-}
+    if (builder.Environment.IsProduction())
+    {
+        options.UseSqlite("Data Source=app.db");
+    }
+    else
+    {
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    }
+});
 
 // Servicios propios
-builder.Services.AddHttpClient<WhatsAppService>((sp, client) =>
-{
-    var config = builder.Configuration.GetSection("WhatsApp");
-    var url = config["ApiUrl"] ?? "";
-    var token = config["Token"] ?? "";
-    client.BaseAddress = new Uri(url);
-    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
-});
+builder.Services.AddHttpClient<WhatsAppService>();
 builder.Services.AddScoped<WhatsAppService>(sp =>
 {
     var config = builder.Configuration.GetSection("WhatsApp");
     var url = config["ApiUrl"] ?? "";
     var token = config["Token"] ?? "";
-    var httpClient = sp.GetRequiredService<IHttpClientFactory>().CreateClient(nameof(WhatsAppService));
+    var httpClient = sp.GetRequiredService<IHttpClientFactory>().CreateClient();
     return new WhatsAppService(httpClient, url, token);
 });
-builder.Services.AddHostedService<ReminderBackgroundService>();
 
-// Controladores y Swagger
+// Controladores
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Configurar CORS para producción
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -71,11 +58,35 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configurar puerto dinámico para Render.com
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-app.Urls.Add($"http://*:{port}");
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+var urls = $"http://0.0.0.0:{port}";
+app.Urls.Clear();
+app.Urls.Add(urls);
+
+Console.WriteLine($"Aplicación iniciando en: {urls}");
+
+// Crear base de datos si no existe
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        dbContext.Database.EnsureCreated();
+        Console.WriteLine("Base de datos inicializada correctamente");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error al inicializar base de datos: {ex.Message}");
+    }
+}
 
 // Configurar health checks
-app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
+app.MapGet("/health", () => Results.Ok(new { 
+    status = "healthy", 
+    timestamp = DateTime.UtcNow,
+    port = port,
+    environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+}));
 
 if (app.Environment.IsDevelopment())
 {
@@ -83,8 +94,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Habilitar CORS
 app.UseCors();
 app.UseAuthorization();
 app.MapControllers();
+
+Console.WriteLine("Aplicación iniciada correctamente");
 app.Run();

@@ -1,27 +1,9 @@
-# Excluir archivos y carpetas innecesarios para Docker
-bin/
-obj/
-.git/
-.gitignore
-.vs/
-.vscode/
-*.md
-Dockerfile
-.dockerignore
+# Excluir la mayoría de archivos excepto publish/
+*
+!publish/
+!Dockerfile
+!.dockerignore
 
-# Archivos de desarrollo
-*.user
-*.suo
-*.cache
-*.tmp
-
-# Logs
-logs/
-*.log
-
-# Base de datos local
-*.db
-*.sqlite
-
-# Archivos de configuración locales
-appsettings.Development.json
+# Excluir archivos específicos del directorio publish si existen
+publish/.gitignore
+publish/README.md

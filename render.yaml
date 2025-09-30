@@ -1,5 +1,4 @@
 services:
-  # Servicio web principal
   - type: web
     name: sistema-citas-whatsapp
     env: docker
@@ -9,13 +8,7 @@ services:
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
-      - key: ASPNETCORE_URLS
-        value: http://*:10000
-      - key: PORT
-        value: 10000
       - key: WHATSAPP_API_URL
         value: https://graph.facebook.com/v19.0/TU_NUMERO_WHATSAPP/messages
       - key: WHATSAPP_TOKEN
         value: TU_TOKEN_WHATSAPP
-      - key: DATABASE_URL
-        value: "Server=localhost;Database=CitasDb;Trusted_Connection=True;TrustServerCertificate=True;"

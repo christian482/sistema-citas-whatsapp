@@ -1,32 +1,20 @@
-# Usar imagen base de .NET 8 SDK para compilación
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+# Dockerfile que evita compilación en contenedor (evita error 139)
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+
+# Configurar directorio de trabajo
 WORKDIR /app
 
-# Copiar proyecto y restaurar dependencias
-COPY *.csproj ./
-RUN dotnet restore
+# Copiar archivos ya compilados
+COPY publish/ ./
 
-# Copiar código fuente y compilar
-COPY . ./
-RUN dotnet publish -c Release -o out --no-restore
-
-# Imagen runtime
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
-WORKDIR /app
-
-# Copiar archivos compilados
-COPY --from=build /app/out .
-
-# Copiar script de inicio
-COPY start.sh .
-RUN chmod +x start.sh
-
-# Variables de entorno por defecto
+# Configurar variables de entorno optimizadas
 ENV ASPNETCORE_ENVIRONMENT=Production
+ENV ASPNETCORE_URLS=http://+:$PORT
 ENV DOTNET_RUNNING_IN_CONTAINER=true
+ENV DOTNET_EnableDiagnostics=0
 
-# El puerto será dinámico según Render.com
+# No exponer puerto fijo, usar variable PORT de Render.com
 EXPOSE $PORT
 
-# Usar script de inicio
-CMD ["./start.sh"]
+# Ejecutar aplicación
+ENTRYPOINT ["dotnet", "citas.dll"]
