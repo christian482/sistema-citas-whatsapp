@@ -98,6 +98,27 @@ Los usuarios pueden enviar estos comandos por WhatsApp:
 2. URL del webhook: `https://tu-dominio.com/api/whatsappwebhook`
 3. Token de verificación: configúralo en `WhatsAppWebhookController.cs`
 
+## Despliegue
+
+### Render.com (Recomendado para desarrollo)
+El proyecto incluye configuración completa para Render.com:
+
+1. Conecta tu repositorio GitHub a Render.com
+2. Selecciona "Web Service" con "Docker Environment"
+3. Configura las variables de entorno de WhatsApp
+4. Ver [DEPLOY.md](DEPLOY.md) para instrucciones detalladas
+
+### Docker
+```bash
+docker build -t sistema-citas .
+docker run -p 8080:8080 sistema-citas
+```
+
+### Archivos de configuración incluidos:
+- `Dockerfile` - Imagen Docker
+- `render.yaml` - Configuración Render.com
+- `appsettings.Production.json` - Configuración producción
+
 ## Licencia
 [MIT License](LICENSE)
 
