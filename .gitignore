@@ -1,0 +1,38 @@
+# Binarios y archivos de compilación
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+
+# Configuración local
+appsettings.Development.json
+appsettings.local.json
+
+# Visual Studio
+.vs/
+.vscode/settings.json
+*.user
+*.suo
+
+# Base de datos local
+*.mdf
+*.ldf
+*.db
+*.sqlite
+
+# Logs
+logs/
+*.log
+
+# Dependencias de Node.js (si tienes frontend)
+node_modules/
+npm-debug.log*
+
+# Archivos temporales
+*.tmp
+*.temp
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
