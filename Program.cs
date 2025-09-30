@@ -70,6 +70,13 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Configurar puerto dinámico para Render.com
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+app.Urls.Add($"http://*:{port}");
+
+// Configurar health checks
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

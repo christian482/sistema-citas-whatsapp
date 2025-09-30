@@ -1,0 +1,53 @@
+# Imagen base más ligera para Render.com
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
+WORKDIR /app
+
+# Instalar herramientas necesarias en Alpine
+RUN apk add --no-cache icu-libs
+
+# Copiar archivo de proyecto y restaurar
+COPY *.csproj ./
+RUN dotnet restore
+
+# Copiar código y compilar
+COPY . ./
+RUN dotnet publish -c Release -o out \
+    --no-restore \
+    --runtime linux-x64 \
+    --self-contained false
+
+# Imagen runtime ligera
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS runtime
+WORKDIR /app
+
+# Instalar dependencias necesarias para Alpine
+RUN apk add --no-cache \
+    icu-libs \
+    tzdata \
+    && rm -rf /var/cache/apk/*
+
+# Copiar archivos compilados
+COPY --from=build /app/out .
+
+# Crear usuario no-root
+RUN addgroup -g 1001 -S appgroup && \
+    adduser -S appuser -u 1001 -G appgroup && \
+    chown -R appuser:appgroup /app
+
+USER appuser
+
+# Variables de entorno optimizadas para contenedores
+ENV ASPNETCORE_URLS=http://*:8080
+ENV ASPNETCORE_ENVIRONMENT=Production
+ENV DOTNET_RUNNING_IN_CONTAINER=true
+ENV DOTNET_EnableDiagnostics=0
+ENV DOTNET_USE_POLLING_FILE_WATCHER=true
+ENV NUGET_XMLDOC_MODE=skip
+
+EXPOSE 8080
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+ENTRYPOINT ["dotnet", "citas.dll"]

@@ -1,30 +1,32 @@
-# Usar la imagen base de .NET 8 SDK para la compilación
+# Usar imagen base de .NET 8 SDK para compilación
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# Copiar el archivo de proyecto y restaurar dependencias
+# Copiar proyecto y restaurar dependencias
 COPY *.csproj ./
 RUN dotnet restore
 
-# Copiar el resto del código fuente
+# Copiar código fuente y compilar
 COPY . ./
+RUN dotnet publish -c Release -o out --no-restore
 
-# Compilar y publicar la aplicación
-RUN dotnet publish -c Release -o out
-
-# Usar la imagen base de .NET 8 Runtime para la ejecución
+# Imagen runtime
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 
-# Copiar los archivos compilados desde la etapa de build
+# Copiar archivos compilados
 COPY --from=build /app/out .
 
-# Exponer el puerto que usa la aplicación
-EXPOSE 8080
+# Copiar script de inicio
+COPY start.sh .
+RUN chmod +x start.sh
 
-# Configurar variables de entorno
-ENV ASPNETCORE_URLS=http://*:8080
+# Variables de entorno por defecto
 ENV ASPNETCORE_ENVIRONMENT=Production
+ENV DOTNET_RUNNING_IN_CONTAINER=true
 
-# Comando para ejecutar la aplicación
-ENTRYPOINT ["dotnet", "citas.dll"]
+# El puerto será dinámico según Render.com
+EXPOSE $PORT
+
+# Usar script de inicio
+CMD ["./start.sh"]

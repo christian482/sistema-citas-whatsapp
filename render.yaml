@@ -5,21 +5,17 @@ services:
     env: docker
     plan: free
     dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
-      - key: DATABASE_URL
-        fromDatabase:
-          name: citas-db
-          property: connectionString
+      - key: ASPNETCORE_URLS
+        value: http://*:10000
+      - key: PORT
+        value: 10000
       - key: WHATSAPP_API_URL
         value: https://graph.facebook.com/v19.0/TU_NUMERO_WHATSAPP/messages
       - key: WHATSAPP_TOKEN
         value: TU_TOKEN_WHATSAPP
-
-  # Base de datos PostgreSQL (compatible con Entity Framework)
-  - type: pgsql
-    name: citas-db
-    databaseName: citasdb
-    user: citasuser
-    plan: free
+      - key: DATABASE_URL
+        value: "Server=localhost;Database=CitasDb;Trusted_Connection=True;TrustServerCertificate=True;"
