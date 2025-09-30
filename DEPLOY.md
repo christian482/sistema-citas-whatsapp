@@ -73,7 +73,28 @@ Configura esta URL en tu aplicación de WhatsApp Business API.
 ### Troubleshooting
 
 Si tienes problemas:
-1. Revisa los logs en el dashboard de Render
-2. Verifica las variables de entorno
-3. Asegúrate de que el token de WhatsApp sea válido
-4. Confirma que la URL del webhook esté correctamente configurada
+
+#### Error 139 (Segfault)
+- ✅ **Solucionado** - El Dockerfile ha sido optimizado
+- Usar puerto dinámico (`$PORT`) en lugar de puerto fijo
+- Script de inicio incluido para debug
+
+#### Otros problemas comunes:
+1. **Logs**: Revisa los logs en el dashboard de Render
+2. **Variables de entorno**: Verifica que todas estén configuradas
+3. **Token WhatsApp**: Asegúrate de que sea válido
+4. **Webhook URL**: Confirma que esté correctamente configurada
+
+#### Configuración recomendada en Render.com:
+```
+Environment: Docker
+Build Command: (dejar vacío)
+Start Command: (dejar vacío - usa Dockerfile)
+```
+
+#### Variables de entorno mínimas:
+```
+ASPNETCORE_ENVIRONMENT=Production
+WHATSAPP_TOKEN=tu_token_real
+WHATSAPP_API_URL=https://graph.facebook.com/v19.0/TU_NUMERO/messages
+```
