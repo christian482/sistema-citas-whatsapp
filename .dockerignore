@@ -1,0 +1,27 @@
+# Excluir archivos y carpetas innecesarios para Docker
+bin/
+obj/
+.git/
+.gitignore
+.vs/
+.vscode/
+*.md
+Dockerfile
+.dockerignore
+
+# Archivos de desarrollo
+*.user
+*.suo
+*.cache
+*.tmp
+
+# Logs
+logs/
+*.log
+
+# Base de datos local
+*.db
+*.sqlite
+
+# Archivos de configuración locales
+appsettings.Development.json

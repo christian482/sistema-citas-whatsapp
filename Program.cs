@@ -5,9 +5,33 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configurar variables de entorno en producción
+if (builder.Environment.IsProduction())
+{
+    // Reemplazar placeholders con variables de entorno
+    var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") ?? 
+                          builder.Configuration.GetConnectionString("DefaultConnection");
+    
+    builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
+    builder.Configuration["WhatsApp:ApiUrl"] = Environment.GetEnvironmentVariable("WHATSAPP_API_URL") ?? 
+                                               builder.Configuration["WhatsApp:ApiUrl"];
+    builder.Configuration["WhatsApp:Token"] = Environment.GetEnvironmentVariable("WHATSAPP_TOKEN") ?? 
+                                              builder.Configuration["WhatsApp:Token"];
+}
+
 // Configuración de DbContext
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+if (builder.Environment.IsProduction())
+{
+    // PostgreSQL para producción (Render.com)
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+}
+else
+{
+    // SQL Server para desarrollo
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+}
 
 // Servicios propios
 builder.Services.AddHttpClient<WhatsAppService>((sp, client) =>
