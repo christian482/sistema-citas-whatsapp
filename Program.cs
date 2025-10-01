@@ -88,11 +88,44 @@ app.MapGet("/health", () => Results.Ok(new {
     environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
 }));
 
-if (app.Environment.IsDevelopment())
+// Página de inicio
+app.MapGet("/", () => Results.Text($@"
+🎉 SISTEMA DE CITAS CON WHATSAPP - FUNCIONANDO ✅
+
+📊 Estado: Activo
+🕒 Hora: {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC
+🌐 Puerto: {port}
+🔧 Ambiente: {Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}
+
+📋 ENDPOINTS DISPONIBLES:
+• GET  /health - Estado del sistema
+• GET  /api/businesses - Listar negocios  
+• POST /api/businesses - Crear negocio
+• GET  /api/doctors - Listar doctores
+• POST /api/doctors - Crear doctor
+• GET  /api/clients - Listar clientes
+• POST /api/clients - Crear cliente
+• GET  /api/services - Listar servicios
+• POST /api/services - Crear servicio
+• GET  /api/appointments - Listar citas
+• POST /api/appointments - Crear cita
+
+📱 WEBHOOK WHATSAPP:
+• POST /webhook/whatsapp - Recibir mensajes
+• GET  /webhook/whatsapp - Verificación webhook
+
+🚀 Sistema desplegado exitosamente en Render.com
+
+📖 DOCUMENTACION API: /swagger
+", "text/plain"));
+
+// Habilitar Swagger en producción para pruebas
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Sistema Citas WhatsApp API V1");
+    c.RoutePrefix = "swagger";
+});
 
 app.UseCors();
 app.UseAuthorization();
