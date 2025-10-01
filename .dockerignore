@@ -1,4 +1,12 @@
-# Solo incluir lo necesario
-*
-!publish/
-!Dockerfile
+# Incluir solo lo necesario para Docker
+bin/
+obj/
+.git/
+.vs/
+.vscode/
+*.md
+.gitignore
+start.sh
+ERROR-*.md
+
+# NO excluir publish/ ni sus contenidos

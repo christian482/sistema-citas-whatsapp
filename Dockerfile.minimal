@@ -1,10 +1,17 @@
-# Dockerfile ultra-simplificado sin debugging
+# Dockerfile ultra-simple con verificación
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 
 WORKDIR /app
+
+# Copiar todo el directorio publish
 COPY publish/ ./
 
 ENV ASPNETCORE_ENVIRONMENT=Production
 
-# Comando directo sin debugging
-ENTRYPOINT ["dotnet", "citas.dll", "--urls", "http://0.0.0.0:$PORT"]
+# Verificar y ejecutar
+CMD echo "DEBUG: Verificando archivos..." && \
+    ls -la && \
+    echo "DEBUG: Buscando citas.dll..." && \
+    find . -name "citas.dll" && \
+    echo "DEBUG: Ejecutando aplicación..." && \
+    dotnet ./citas.dll --urls "http://0.0.0.0:${PORT:-5000}"
