@@ -3,7 +3,7 @@ services:
     name: sistema-citas-whatsapp
     env: docker
     plan: free
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: ./Dockerfile.build
     healthCheckPath: /health
     envVars:
       - key: ASPNETCORE_ENVIRONMENT

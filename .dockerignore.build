@@ -1,0 +1,19 @@
+# .dockerignore para Dockerfile.build - incluir código fuente
+.git/
+.vs/
+.vscode/
+bin/Debug/
+obj/Debug/
+*.md
+README.md
+DEPLOY.md
+ERROR-*.md
+
+# NO excluir:
+# - Código fuente (.cs)
+# - citas.csproj  
+# - Program.cs
+# - Models/
+# - Controllers/
+# - Services/
+# - Data/
