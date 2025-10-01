@@ -1,9 +1,4 @@
-# Excluir la mayoría de archivos excepto publish/
+# Solo incluir lo necesario
 *
 !publish/
 !Dockerfile
-!.dockerignore
-
-# Excluir archivos específicos del directorio publish si existen
-publish/.gitignore
-publish/README.md
