@@ -1,16 +1,37 @@
-# 🗄️ CONFIGURACIÓN MYSQL CON FREEMYSQLHOSTING
+# 🗄️ CONFIGURACIÓN MYSQL - MÚLTIPLES OPCIONES
 
-## 📋 PASOS PARA CONFIGURAR LA BASE DE DATOS
+## ⚠️ IMPORTANTE: FreeMySQLHosting no disponible
+Si FreeMySQLHosting.net no está disponible, usa las alternativas siguientes.
 
-### 1. **Crear Cuenta en FreeMySQLHosting**
-1. Ve a: https://www.freemysqlhosting.net/
-2. Haz clic en "Register" (Registrarse)
-3. Completa el formulario:
-   - **Your Name**: Tu nombre
-   - **Email Address**: Tu email
-   - **Username**: Elige un username único
-   - **Password**: Contraseña segura
-   - **Confirm Password**: Confirma la contraseña
+## 🏆 **OPCIONES RECOMENDADAS (en orden de preferencia):**
+
+### **🥇 OPCIÓN 1: PlanetScale** (MÁS RECOMENDADO)
+- **Archivo**: `PLANETSCALE-SETUP-GUIDE.md`
+- **Script**: `database-planetscale.sql`
+- **Ventajas**: 1GB gratis, profesional, SSL automático
+
+### **🥈 OPCIÓN 2: Railway**
+- **Archivo**: `ALTERNATIVAS-MYSQL.md`
+- **Script**: `database-planetscale.sql`
+- **Ventajas**: $5 USD gratis/mes, muy fácil
+
+### **🥉 OPCIÓN 3: db4free.net**
+- **Archivo**: `ALTERNATIVAS-MYSQL.md`
+- **Script**: `database-minimal.sql`
+- **Ventajas**: Completamente gratis, 200MB
+
+### **☁️ OPCIÓN 4: Render PostgreSQL**
+- **Archivo**: `ALTERNATIVAS-MYSQL.md`
+- **Nota**: Requiere cambio a PostgreSQL
+
+---
+
+# 📋 PASOS GENERALES (FreeMySQLHosting - NO DISPONIBLE)
+
+### 1. **Crear Cuenta en FreeMySQLHosting** ❌ NO DISPONIBLE
+~~1. Ve a: https://www.freemysqlhosting.net/~~
+~~2. Haz clic en "Register" (Registrarse)~~
+~~3. Completa el formulario~~
 
 ### 2. **Crear Nueva Base de Datos**
 1. Después del registro, ve a "Control Panel"
