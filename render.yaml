@@ -8,6 +8,8 @@ services:
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
+      - key: DATABASE_URL
+        value: "Server=tu-servidor-mysql;Database=citas_db;Uid=tu-usuario;Pwd=tu-password;SslMode=Required;"
       - key: WHATSAPP_API_URL
         value: https://graph.facebook.com/v19.0/TU_NUMERO_WHATSAPP/messages
       - key: WHATSAPP_TOKEN

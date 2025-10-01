@@ -1,13 +1,16 @@
 using citas.Data;
 using citas.Services;
 using Microsoft.EntityFrameworkCore;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Configurar variables de entorno en producción
 if (builder.Environment.IsProduction())
 {
-    var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") ?? "Data Source=app.db";
+    var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") ?? 
+                          builder.Configuration.GetConnectionString("DefaultConnection");
+    
     builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
     builder.Configuration["WhatsApp:ApiUrl"] = Environment.GetEnvironmentVariable("WHATSAPP_API_URL") ?? 
                                                builder.Configuration["WhatsApp:ApiUrl"];
@@ -15,15 +18,21 @@ if (builder.Environment.IsProduction())
                                               builder.Configuration["WhatsApp:Token"];
 }
 
-// Configuración de DbContext - SQLite para simplicidad en producción
+// Configuración de DbContext - MySQL para producción
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     if (builder.Environment.IsProduction())
     {
-        options.UseSqlite("Data Source=app.db");
+        var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") ?? 
+                               builder.Configuration.GetConnectionString("DefaultConnection");
+        
+        // Configurar MySQL para producción
+        var serverVersion = new MySqlServerVersion(new Version(8, 0, 34));
+        options.UseMySql(connectionString, serverVersion);
     }
     else
     {
+        // SQL Server para desarrollo local
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
     }
 });
@@ -72,11 +81,11 @@ using (var scope = app.Services.CreateScope())
     {
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         dbContext.Database.EnsureCreated();
-        Console.WriteLine("Base de datos inicializada correctamente");
+        Console.WriteLine("Base de datos MySQL inicializada correctamente");
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Error al inicializar base de datos: {ex.Message}");
+        Console.WriteLine($"Error al inicializar base de datos MySQL: {ex.Message}");
     }
 }
 
@@ -85,7 +94,8 @@ app.MapGet("/health", () => Results.Ok(new {
     status = "healthy", 
     timestamp = DateTime.UtcNow,
     port = port,
-    environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+    environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
+    database = builder.Environment.IsProduction() ? "MySQL" : "SQL Server"
 }));
 
 // Página de inicio
@@ -93,6 +103,7 @@ app.MapGet("/", () => Results.Text($@"
 🎉 SISTEMA DE CITAS CON WHATSAPP - FUNCIONANDO ✅
 
 📊 Estado: Activo
+🗄️ Base de datos: {(builder.Environment.IsProduction() ? "MySQL" : "SQL Server")}
 🕒 Hora: {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC
 🌐 Puerto: {port}
 🔧 Ambiente: {Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}
@@ -131,5 +142,5 @@ app.UseCors();
 app.UseAuthorization();
 app.MapControllers();
 
-Console.WriteLine("Aplicación iniciada correctamente");
+Console.WriteLine("Aplicación iniciada correctamente con MySQL");
 app.Run();
