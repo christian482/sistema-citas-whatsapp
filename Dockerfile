@@ -1,20 +1,18 @@
-# Dockerfile que evita compilación en contenedor (evita error 139)
+# Dockerfile con script de inicio para debugging error 145
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 
-# Configurar directorio de trabajo
 WORKDIR /app
 
-# Copiar archivos ya compilados
+# Copiar archivos
 COPY publish/ ./
+COPY start.sh ./
 
-# Configurar variables de entorno optimizadas
+# Dar permisos al script
+RUN chmod +x start.sh
+
+# Variables de entorno
 ENV ASPNETCORE_ENVIRONMENT=Production
-ENV ASPNETCORE_URLS=http://+:$PORT
 ENV DOTNET_RUNNING_IN_CONTAINER=true
-ENV DOTNET_EnableDiagnostics=0
 
-# No exponer puerto fijo, usar variable PORT de Render.com
-EXPOSE $PORT
-
-# Ejecutar aplicación
-ENTRYPOINT ["dotnet", "citas.dll"]
+# Usar script de inicio
+CMD ["./start.sh"]

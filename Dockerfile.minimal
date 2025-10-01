@@ -1,0 +1,15 @@
+# Dockerfile minimalista para evitar error 145
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine
+
+WORKDIR /app
+COPY publish/ ./
+
+# Variables básicas
+ENV ASPNETCORE_ENVIRONMENT=Production
+ENV DOTNET_RUNNING_IN_CONTAINER=true
+
+# Puerto dinámico por defecto
+EXPOSE 5000
+
+# Comando simple
+ENTRYPOINT ["dotnet", "citas.dll", "--urls", "http://0.0.0.0:5000"]
