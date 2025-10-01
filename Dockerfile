@@ -1,33 +1,39 @@
-# Dockerfile con verificación de archivos
+# Dockerfile con copia completa y verificación
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 
 WORKDIR /app
 
-# Copiar archivos compilados de manera más específica
-COPY publish/*.dll ./
-COPY publish/*.json ./
-COPY publish/*.config ./
-COPY publish/runtimes ./runtimes/
+# Copiar TODO el contenido de publish recursivamente
+COPY publish/ .
 
 # Variables de entorno
 ENV ASPNETCORE_ENVIRONMENT=Production
 ENV DOTNET_RUNNING_IN_CONTAINER=true
 
-# Comando con verificación mejorada
+# Comando con debugging completo
 CMD echo "=== INICIANDO APLICACION ===" && \
     echo "Puerto: $PORT" && \
-    echo "Directorio: $(pwd)" && \
-    echo "Archivos .dll disponibles:" && \
-    ls -la *.dll || echo "No hay archivos .dll" && \
-    echo "Todos los archivos:" && \
-    ls -la && \
+    echo "Directorio actual: $(pwd)" && \
+    echo "=== LISTADO COMPLETO DE ARCHIVOS ===" && \
+    ls -laR && \
+    echo "=== BUSCANDO ARCHIVOS .dll ===" && \
+    find . -name "*.dll" -type f && \
     echo "=== VERIFICANDO citas.dll ===" && \
-    if [ -f "citas.dll" ]; then \
+    if [ -f "./citas.dll" ]; then \
+        echo "✓ citas.dll encontrado en raíz, ejecutando..." && \
+        dotnet ./citas.dll --urls "http://0.0.0.0:${PORT:-5000}"; \
+    elif [ -f "citas.dll" ]; then \
         echo "✓ citas.dll encontrado, ejecutando..." && \
         dotnet citas.dll --urls "http://0.0.0.0:${PORT:-5000}"; \
     else \
-        echo "❌ citas.dll NO encontrado" && \
-        echo "Contenido del directorio:" && \
-        find . -name "*.dll" && \
-        exit 1; \
+        echo "❌ citas.dll NO encontrado en ninguna ubicación" && \
+        echo "Intentando ejecutar desde cualquier ubicación encontrada..." && \
+        CITAS_DLL=$(find . -name "citas.dll" -type f | head -1) && \
+        if [ -n "$CITAS_DLL" ]; then \
+            echo "Encontrado en: $CITAS_DLL" && \
+            dotnet "$CITAS_DLL" --urls "http://0.0.0.0:${PORT:-5000}"; \
+        else \
+            echo "ERROR: No se pudo encontrar citas.dll en ninguna parte" && \
+            exit 1; \
+        fi; \
     fi

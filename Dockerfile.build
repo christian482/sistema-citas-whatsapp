@@ -1,0 +1,24 @@
+# Dockerfile alternativo que compila en el propio contenedor
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+
+WORKDIR /src
+COPY . .
+
+# Restaurar y compilar
+RUN dotnet restore "citas.csproj"
+RUN dotnet build "citas.csproj" -c Release -o /app/build
+RUN dotnet publish "citas.csproj" -c Release -o /app/publish
+
+# Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
+
+# Copiar desde build stage
+COPY --from=build /app/publish .
+
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+# Comando simple - el archivo DEBE estar aquí
+CMD echo "=== ARCHIVOS EN CONTENEDOR ===" && \
+    ls -la && \
+    dotnet citas.dll --urls "http://0.0.0.0:${PORT:-5000}"
