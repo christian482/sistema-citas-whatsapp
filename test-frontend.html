@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API - Sistema de Citas</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .endpoint { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .result { background: #f5f5f5; padding: 10px; margin-top: 10px; border-radius: 3px; }
+        button { background: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test API - Sistema de Citas con MySQL</h1>
+        
+        <div class="endpoint">
+            <h3>1. Health Check</h3>
+            <button onclick="testEndpoint('/health', 'health-result')">Test /health</button>
+            <div id="health-result" class="result"></div>
+        </div>
+
+        <div class="endpoint">
+            <h3>2. Database Health</h3>
+            <button onclick="testEndpoint('/health/database', 'db-result')">Test /health/database</button>
+            <div id="db-result" class="result"></div>
+        </div>
+
+        <div class="endpoint">
+            <h3>3. Businesses</h3>
+            <button onclick="testEndpoint('/api/businesses', 'businesses-result')">Test /api/businesses</button>
+            <div id="businesses-result" class="result"></div>
+        </div>
+
+        <div class="endpoint">
+            <h3>4. Services</h3>
+            <button onclick="testEndpoint('/api/services', 'services-result')">Test /api/services</button>
+            <div id="services-result" class="result"></div>
+        </div>
+
+        <div class="endpoint">
+            <h3>5. Doctors</h3>
+            <button onclick="testEndpoint('/api/doctors', 'doctors-result')">Test /api/doctors</button>
+            <div id="doctors-result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        async function testEndpoint(endpoint, resultId) {
+            const resultDiv = document.getElementById(resultId);
+            resultDiv.innerHTML = '<span style="color: blue;">Cargando...</span>';
+            
+            try {
+                const response = await fetch(`http://localhost:5000${endpoint}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                resultDiv.innerHTML = `
+                    <div class="success">✅ Éxito (${response.status})</div>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">❌ Error: ${error.message}</div>
+                `;
+            }
+        }
+
+        // Test automático al cargar la página
+        window.onload = function() {
+            console.log('🚀 Página cargada - probando endpoints automáticamente...');
+            setTimeout(() => testEndpoint('/health', 'health-result'), 1000);
+        };
+    </script>
+</body>
+</html>
